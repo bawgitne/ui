@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Google</title>
+</head>
+<body>
+
+    <div id="g_id_onload"
+         data-client_id="482585966871-0e27pbkffud1i2mur8ntd5b3v62tcgvt.apps.googleusercontent.com"
+         data-callback="onGoogleSignIn"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        function onGoogleSignIn(response) {
+            const idToken = response.credential;
+            console.log("ID Token từ Google:", idToken);
+
+            // Gửi ID Token này đến backend của bạn
+            fetch('http://localhost:8080/api/auth/google/login', { // Thay URL backend của bạn
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ accessToken: idToken })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.message || 'Lỗi từ backend'); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('Đăng nhập thành công:', data);
+                alert('Đăng nhập Google thành công!');
+                // Bạn có thể lưu data.token và data.refreshToken vào localStorage tại đây
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi token đến backend:', error);
+                alert('Đăng nhập Google thất bại: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html>
